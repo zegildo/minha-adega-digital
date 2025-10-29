@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Adega Digital</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+        }
+        .main-counter {
+            font-size: 6rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .ranking-card {
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ranking-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        }
+        .wine-card {
+            transition: all 0.3s;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+        .wine-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .wine-card.tinto { border-left-color: #8B0000; }
+        .wine-card.branco { border-left-color: #FFD700; }
+        .wine-card.rose { border-left-color: #FF69B4; }
+        .wine-card.espumante { border-left-color: #00CED1; }
+        
+        .wine-image {
+            width: 50px;
+            height: 70px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .rating-stars {
+            color: #FFD700;
+            font-size: 0.85rem;
+        }
+        .type-badge {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+        }
+        .type-tinto { background: #8B0000; color: white; }
+        .type-branco { background: #FFD700; color: #333; }
+        .type-rose { background: #FF69B4; color: white; }
+        .type-espumante { background: #00CED1; color: white; }
+        
+        .ranking-position {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 35px;
+        }
+        .medal {
+            font-size: 1.8rem;
+        }
+        
+        .category-card {
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .category-card.active {
+            border-color: #667eea;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+        .category-card:hover {
+            transform: scale(1.02);
+        }
+        
+        .back-button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+        
+        .floating-add-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.4);
+            font-size: 1.5rem;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .floating-add-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .search-box {
+            border-radius: 25px;
+            border: 2px solid #e9ecef;
+            padding: 12px 20px;
+        }
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .category-counter {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .counter-tinto { color: #8B0000; }
+        .counter-branco { color: #FFD700; }
+        .counter-rose { color: #FF69B4; }
+        .counter-espumante { color: #00CED1; }
+
+        .nfc-hint {
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 600px;">
+        
+        <!-- VIEW 1: Tela Principal (Simplificada) -->
+        <div id="viewMain">
+            <!-- Header -->
+            <div class="text-center text-white mb-4">
+                <h1>🍷 Minha Adega Digital</h1>
+                <p class="mb-0">Sua coleção de vinhos</p>
+            </div>
+
+            <!-- Contador Principal -->
+            <div class="card mb-3">
+                <div class="card-body text-center p-5">
+                    <div class="main-counter" id="totalCounter">0</div>
+                    <h4 class="text-muted">vinhos na coleção</h4>
+                </div>
+            </div>
+
+            <!-- Cartão de Ranking -->
+            <div class="card mb-3 p-0">
+                <div class="ranking-card" onclick="goToRankings()">
+                    <div class="text-center">
+                        <i class="fas fa-trophy" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h3 class="mb-2">Ver Ranking Completo</h3>
+                        <p class="mb-0 opacity-75">Clique para ver detalhes por categoria</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top 3 Resumido -->
+            <div class="card mb-3" id="top3Card" style="display: none;">
+                <div class="card-body">
+                    <h5 class="mb-3">🏆 Top 3 Favoritos</h5>
+                    <div id="top3List"></div>
+                </div>
+            </div>
+
+            <!-- Dica NFC -->
+            <div class="nfc-hint text-center">
+                <i class="fas fa-mobile-alt fs-3 mb-2"></i>
+                <p class="mb-0"><strong>Dica:</strong> Cole a tag NFC no porta-rolhas e aproxime o celular para adicionar rapidamente!</p>
+            </div>
+        </div>
+
+        <!-- VIEW 2: Rankings Detalhados -->
+        <div id="viewRankings" style="display: none;">
+            <!-- Header com Botão Voltar -->
+            <div class="d-flex align-items-center mb-4">
+                <button class="back-button" onclick="goToMain()">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </button>
+                <h3 class="text-white ms-3 mb-0">Rankings por Categoria</h3>
+            </div>
+
+            <!-- Resumo por Categoria -->
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <div class="card category-card" onclick="filterCategory('tinto')" id="cardTinto">
+                        <div class="card-body text-center p-3">
+                            <div class="counter-tinto category-counter" id="countTinto">0</div>
+                            <small class="text-muted">🍷 Tintos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card category-card" onclick="filterCategory('branco')" id="cardBranco">
+                        <div class="card-body text-center p-3">
+                            <div class="counter-branco category-counter" id="countBranco">0</div>
+                            <small class="text-muted">🥂 Brancos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card category-card" onclick="filterCategory('rose')" id="cardRose">
+                        <div class="card-body text-center p-3">
+                            <div class="counter-rose category-counter" id="countRose">0</div>
+                            <small class="text-muted">🌸 Rosés</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card category-card" onclick="filterCategory('espumante')" id="cardEspumante">
+                        <div class="card-body text-center p-3">
+                            <div class="counter-espumante category-counter" id="countEspumante">0</div>
+                            <small class="text-muted">🍾 Espumantes</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Busca -->
+            <div class="mb-3">
+                <input type="text" class="form-control search-box" 
+                       id="searchInput" 
+                       placeholder="🔍 Buscar vinho..."
+                       oninput="searchWines()">
+            </div>
+
+            <!-- Título do Ranking Atual -->
+            <div class="card mb-2">
+                <div class="card-body p-2 text-center">
+                    <strong id="rankingTitle">Todos os Vinhos</strong>
+                </div>
+            </div>
+
+            <!-- Lista de Rankings -->
+            <div id="rankingList"></div>
+        </div>
+
+    </div>
+
+    <!-- Botão Flutuante Adicionar -->
+    <button class="floating-add-btn" onclick="showAddWineModal()" title="Adicionar novo vinho">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Modal Adicionar Vinho -->
+    <div class="modal fade" id="addWineModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">🍷 Adicionar Vinho</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Vinho *</label>
+                        <input type="text" class="form-control" id="wineName" 
+                               placeholder="Ex: Château Margaux 2015">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tipo *</label>
+                        <select class="form-select" id="wineType">
+                            <option value="tinto">🍷 Tinto</option>
+                            <option value="branco">🥂 Branco</option>
+                            <option value="rose">🌸 Rosé</option>
+                            <option value="espumante">🍾 Espumante</option>
+                        </select>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Safra</label>
+                            <input type="number" class="form-control" id="wineYear" 
+                                   placeholder="2020" min="1900" max="2025">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">País</label>
+                            <input type="text" class="form-control" id="wineCountry" 
+                                   placeholder="França">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Sua Avaliação *</label>
+                        <div class="d-flex justify-content-center gap-2 my-2" id="ratingStars">
+                            <i class="fas fa-star fs-2" onclick="setRating(1)" data-rating="1" style="cursor: pointer; color: #ddd;"></i>
+                            <i class="fas fa-star fs-2" onclick="setRating(2)" data-rating="2" style="cursor: pointer; color: #ddd;"></i>
+                            <i class="fas fa-star fs-2" onclick="setRating(3)" data-rating="3" style="cursor: pointer; color: #ddd;"></i>
+                            <i class="fas fa-star fs-2" onclick="setRating(4)" data-rating="4" style="cursor: pointer; color: #ddd;"></i>
+                            <i class="fas fa-star fs-2" onclick="setRating(5)" data-rating="5" style="cursor: pointer; color: #ddd;"></i>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Notas de Degustação</label>
+                        <textarea class="form-control" id="wineNotes" rows="3"
+                                  placeholder="Taninos macios, notas de frutas vermelhas..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">URL da Imagem (opcional)</label>
+                        <input type="url" class="form-control" id="wineImage" 
+                               placeholder="https://exemplo.com/imagem.jpg">
+                        <small class="text-muted">Cole um link de imagem da garrafa</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addWine()">
+                        <i class="fas fa-check me-1"></i> Adicionar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes do Vinho -->
+    <div class="modal fade" id="wineDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-body p-4" id="wineDetailContent">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let wines = [];
+        let currentRating = 0;
+        let currentCategory = 'all';
+        let addWineModal, wineDetailModal;
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            addWineModal = new bootstrap.Modal(document.getElementById('addWineModal'));
+            wineDetailModal = new bootstrap.Modal(document.getElementById('wineDetailModal'));
+            loadData();
+            updateMainView();
+            
+            // Verificar NFC
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('action') === 'add') {
+                setTimeout(() => showAddWineModal(), 300);
+            }
+        });
+
+        // Carregar dados
+        function loadData() {
+            const saved = localStorage.getItem('wine_collection');
+            if (saved) {
+                wines = JSON.parse(saved);
+            }
+        }
+
+        // Salvar dados
+        function saveData() {
+            localStorage.setItem('wine_collection', JSON.stringify(wines));
+        }
+
+        // Navegação entre views
+        function goToRankings() {
+            if (wines.length === 0) {
+                alert('Adicione vinhos primeiro para ver o ranking!');
+                return;
+            }
+            document.getElementById('viewMain').style.display = 'none';
+            document.getElementById('viewRankings').style.display = 'block';
+            updateRankingsView();
+        }
+
+        function goToMain() {
+            document.getElementById('viewMain').style.display = 'block';
+            document.getElementById('viewRankings').style.display = 'none';
+            currentCategory = 'all';
+            document.getElementById('searchInput').value = '';
+        }
+
+        // Atualizar View Principal
+        function updateMainView() {
+            // Contador total
+            document.getElementById('totalCounter').textContent = wines.length;
+            
+            // Top 3
+            if (wines.length > 0) {
+                document.getElementById('top3Card').style.display = 'block';
+                const top3 = [...wines].sort((a, b) => b.rating - a.rating).slice(0, 3);
+                const medals = ['🥇', '🥈', '🥉'];
+                
+                document.getElementById('top3List').innerHTML = top3.map((wine, index) => `
+                    <div class="wine-card card mb-2 p-2 ${wine.type}" onclick="showWineDetail(${wine.id})">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="medal">${medals[index]}</div>
+                            <img src="${wine.image}" class="wine-image" alt="${wine.name}">
+                            <div class="flex-grow-1">
+                                <strong class="d-block">${wine.name}</strong>
+                                <div class="rating-stars">${'★'.repeat(wine.rating)}${'☆'.repeat(5-wine.rating)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('top3Card').style.display = 'none';
+            }
+        }
+
+        // Atualizar View de Rankings
+        function updateRankingsView() {
+            // Contadores por categoria
+            document.getElementById('countTinto').textContent = wines.filter(w => w.type === 'tinto').length;
+            document.getElementById('countBranco').textContent = wines.filter(w => w.type === 'branco').length;
+            document.getElementById('countRose').textContent = wines.filter(w => w.type === 'rose').length;
+            document.getElementById('countEspumante').textContent = wines.filter(w => w.type === 'espumante').length;
+            
+            // Atualizar ranking
+            updateRankingList();
+        }
+
+        // Filtrar por categoria
+        function filterCategory(category) {
+            currentCategory = category;
+            
+            // Atualizar cards de categoria
+            document.querySelectorAll('.category-card').forEach(card => card.classList.remove('active'));
+            document.getElementById('card' + category.charAt(0).toUpperCase() + category.slice(1)).classList.add('active');
+            
+            // Atualizar título
+            const titles = {
+                tinto: '🍷 Ranking de Tintos',
+                branco: '🥂 Ranking de Brancos',
+                rose: '🌸 Ranking de Rosés',
+                espumante: '🍾 Ranking de Espumantes'
+            };
+            document.getElementById('rankingTitle').textContent = titles[category];
+            
+            updateRankingList();
+        }
+
+        // Atualizar lista de ranking
+        function updateRankingList() {
+            let filtered = wines;
+            
+            if (currentCategory !== 'all') {
+                filtered = wines.filter(w => w.type === currentCategory);
+            }
+
+            const sorted = [...filtered].sort((a, b) => {
+                if (b.rating !== a.rating) return b.rating - a.rating;
+                return new Date(b.dateAdded) - new Date(a.dateAdded);
+            });
+
+            if (sorted.length === 0) {
+                document.getElementById('rankingList').innerHTML = 
+                    '<div class="card"><div class="card-body text-center text-muted p-4">Nenhum vinho nesta categoria</div></div>';
+                return;
+            }
+
+            document.getElementById('rankingList').innerHTML = sorted.map((wine, index) => `
+                <div class="wine-card card mb-2 p-3 ${wine.type}" onclick="showWineDetail(${wine.id})">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="ranking-position">#${index + 1}</div>
+                        <img src="${wine.image}" class="wine-image" alt="${wine.name}">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>${wine.name}</strong>
+                                    ${wine.year ? `<span class="text-muted small"> (${wine.year})</span>` : ''}
+                                    <div class="rating-stars">${'★'.repeat(wine.rating)}${'☆'.repeat(5-wine.rating)}</div>
+                                    <small class="text-muted">${wine.country}</small>
+                                </div>
+                                ${currentCategory === 'all' ? `<span class="type-badge type-${wine.type}">${getTypeName(wine.type)}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Busca
+        function searchWines() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (query === '') {
+                currentCategory = 'all';
+                document.querySelectorAll('.category-card').forEach(card => card.classList.remove('active'));
+                document.getElementById('rankingTitle').textContent = 'Todos os Vinhos';
+                updateRankingList();
+                return;
+            }
+
+            const filtered = wines.filter(w => 
+                w.name.toLowerCase().includes(query) ||
+                w.country.toLowerCase().includes(query) ||
+                (w.notes && w.notes.toLowerCase().includes(query))
+            );
+
+            if (filtered.length === 0) {
+                document.getElementById('rankingList').innerHTML = 
+                    '<div class="card"><div class="card-body text-center text-muted p-4">Nenhum vinho encontrado</div></div>';
+                return;
+            }
+
+            const sorted = [...filtered].sort((a, b) => {
+                if (b.rating !== a.rating) return b.rating - a.rating;
+                return new Date(b.dateAdded) - new Date(a.dateAdded);
+            });
+
+            document.getElementById('rankingTitle').textContent = `Resultados da busca (${filtered.length})`;
+            document.querySelectorAll('.category-card').forEach(card => card.classList.remove('active'));
+
+            document.getElementById('rankingList').innerHTML = sorted.map((wine, index) => `
+                <div class="wine-card card mb-2 p-3 ${wine.type}" onclick="showWineDetail(${wine.id})">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="ranking-position">#${index + 1}</div>
+                        <img src="${wine.image}" class="wine-image" alt="${wine.name}">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>${wine.name}</strong>
+                                    ${wine.year ? `<span class="text-muted small"> (${wine.year})</span>` : ''}
+                                    <div class="rating-stars">${'★'.repeat(wine.rating)}${'☆'.repeat(5-wine.rating)}</div>
+                                    <small class="text-muted">${wine.country}</small>
+                                </div>
+                                <span class="type-badge type-${wine.type}">${getTypeName(wine.type)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modal Adicionar Vinho
+        function showAddWineModal() {
+            currentRating = 0;
+            document.getElementById('wineName').value = '';
+            document.getElementById('wineType').value = 'tinto';
+            document.getElementById('wineYear').value = '';
+            document.getElementById('wineCountry').value = '';
+            document.getElementById('wineNotes').value = '';
+            document.getElementById('wineImage').value = '';
+            updateStarDisplay();
+            addWineModal.show();
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            updateStarDisplay();
+        }
+
+        function updateStarDisplay() {
+            document.querySelectorAll('#ratingStars i').forEach((star, index) => {
+                star.style.color = index < currentRating ? '#FFD700' : '#ddd';
+            });
+        }
+
+        function addWine() {
+            const name = document.getElementById('wineName').value.trim();
+            const type = document.getElementById('wineType').value;
+            const year = document.getElementById('wineYear').value;
+            const country = document.getElementById('wineCountry').value.trim();
+            const notes = document.getElementById('wineNotes').value.trim();
+            const image = document.getElementById('wineImage').value.trim();
+
+            if (!name) {
+                alert('Por favor, preencha o nome do vinho');
+                return;
+            }
+
+            if (currentRating === 0) {
+                alert('Por favor, dê uma avaliação ao vinho');
+                return;
+            }
+
+            const wine = {
+                id: Date.now(),
+                name: name,
+                type: type,
+                year: year || null,
+                country: country || 'Não especificado',
+                rating: currentRating,
+                notes: notes,
+                image: image || getDefaultImage(type),
+                dateAdded: new Date().toISOString()
+            };
+
+            wines.unshift(wine);
+            saveData();
+            updateMainView();
+            updateRankingsView();
+            addWineModal.hide();
+
+            if (wines.length % 10 === 0) {
+                setTimeout(() => alert(`🎉 Parabéns! Você já tem ${wines.length} vinhos na sua coleção!`), 300);
+            }
+        }
+
+        function getDefaultImage(type) {
+            const images = {
+                tinto: 'https://via.placeholder.com/150x200/8B0000/FFFFFF?text=Tinto',
+                branco: 'https://via.placeholder.com/150x200/FFD700/333333?text=Branco',
+                rose: 'https://via.placeholder.com/150x200/FF69B4/FFFFFF?text=Rose',
+                espumante: 'https://via.placeholder.com/150x200/00CED1/FFFFFF?text=Espumante'
+            };
+            return images[type];
+        }
+
+        // Detalhes do vinho
+        function showWineDetail(id) {
+            const wine = wines.find(w => w.id === id);
+            if (!wine) return;
+
+            const date = new Date(wine.dateAdded);
+            document.getElementById('wineDetailContent').innerHTML = `
+                <div class="text-center mb-3">
+                    <img src="${wine.image}" style="width: 120px; height: 160px; object-fit: contain;" alt="${wine.name}">
+                </div>
+                <h4 class="text-center mb-3">${wine.name}</h4>
+                <div class="mb-3 text-center">
+                    <span class="type-badge type-${wine.type}">${getTypeName(wine.type)}</span>
+                    ${wine.year ? `<span class="badge bg-secondary ms-2">${wine.year}</span>` : ''}
+                </div>
+                <div class="rating-stars text-center fs-4 mb-3">${'★'.repeat(wine.rating)}${'☆'.repeat(5-wine.rating)}</div>
+                <p><strong>País:</strong> ${wine.country}</p>
+                ${wine.notes ? `<p><strong>Notas:</strong><br>${wine.notes}</p>` : ''}
+                <p class="text-muted small">Adicionado em ${date.toLocaleDateString('pt-BR')}</p>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-danger flex-grow-1" onclick="deleteWine(${wine.id})">
+                        <i class="fas fa-trash me-1"></i> Excluir
+                    </button>
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            `;
+            wineDetailModal.show();
+        }
+
+        function deleteWine(id) {
+            if (confirm('Tem certeza que deseja excluir este vinho?')) {
+                wines = wines.filter(w => w.id !== id);
+                saveData();
+                updateMainView();
+                updateRankingsView();
+                wineDetailModal.hide();
+            }
+        }
+
+        function getTypeName(type) {
+            const names = {
+                tinto: 'Tinto',
+                branco: 'Branco',
+                rose: 'Rosé',
+                espumante: 'Espumante'
+            };
+            return names[type];
+        }
+    </script>
+</body>
+</html>
